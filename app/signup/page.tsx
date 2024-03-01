@@ -3,9 +3,13 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useTypewriter } from 'react-simple-typewriter';
-
+import axios from "axios"
+import { useRouter } from 'next/navigation';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Signup = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -19,12 +23,24 @@ const Signup = () => {
     const value = e.target.value;
     setFormData((form) => ({...form, [name]: value}));
   }
+  
 
-  const onSubmitHandler = (e: any) => {
+  const onSubmitHandler = async (e: any) => {
     e.preventDefault();
+
     try {
+      const response = await axios.post("/api/users/signup", formData)
+      console.log(response);
       
+      toast.success(response.data.msg, {
+        onClose: () => {
+          router.push("/login")
+        }
+      })
+
+      // router.push("/login")
     } catch (error) {
+      console.log("Error Occured while creating user");
       
     }
   }
@@ -46,6 +62,7 @@ const Signup = () => {
           <h1 className='text-xl text-white font-bold'>Sign Up Now</h1>
         </div>
         <div className='w-full'>
+          <ToastContainer />
           <form
             onSubmit={onSubmitHandler}
             className='w-full flex flex-col flex-wrap justify-center items-center mt-3 gap-3'
@@ -75,6 +92,7 @@ const Signup = () => {
               value={formData.confirmPassword}
               className='w-[80%] text-lg text-blue-950 py-2 rounded-md placeholder:text-blue-600 focus:outline-none focus:ring focus:ring-blue-300'
             />
+            
           </form>
         </div>
         <div className='flex self-start mt-3 px-10'>
@@ -85,9 +103,7 @@ const Signup = () => {
           <input type="checkbox" />
           <h1 className='px-2 text-white text-md'> Remeber Me</h1>
         </div>
-        <div className='mt-3'>
-          <button type='submit' className='bg-blue-500 px-[50px] py-2 text-white text-lg font-bold rounded-full shadow-md shadow-yellow-300'>Submit</button>
-        </div>
+        <button onClick={onSubmitHandler} type='submit' className='bg-blue-500 px-[50px] py-2 text-white text-lg font-bold rounded-full shadow-md shadow-yellow-300'>Submit</button>
         <div className='flex self-start px-10 mb-3 mt-3'>
           <h1 className='px-2 text-white text-md'>Already have an account</h1>
           <Link href="/login" className='text-blue-700 border-b-red-800'>Login Here</Link>
